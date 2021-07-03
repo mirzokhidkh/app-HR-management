@@ -13,16 +13,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.mk.apphrmanagement.entity.Role;
+import uz.mk.apphrmanagement.entity.Turniket;
 import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.payload.LoginDto;
 import uz.mk.apphrmanagement.payload.RegisterDto;
 import uz.mk.apphrmanagement.repository.RoleRepository;
+import uz.mk.apphrmanagement.repository.TurniketRepository;
 import uz.mk.apphrmanagement.repository.UserRepository;
 import uz.mk.apphrmanagement.security.JwtProvider;
 import uz.mk.apphrmanagement.utils.CommonUtils;
 
+import javax.persistence.EntityManager;
 import java.util.*;
 
 @Service
@@ -33,6 +36,9 @@ public class AuthService implements UserDetailsService {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    TurniketRepository turniketRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -53,6 +59,7 @@ public class AuthService implements UserDetailsService {
         if (existsByEmail) {
             return new ApiResponse("Email already exists", false);
         }
+
         User user = new User();
         user.setFirstname(registerDto.getFirstname());
         user.setLastname(registerDto.getLastname());
@@ -68,14 +75,22 @@ public class AuthService implements UserDetailsService {
         List<Role> roles = roleRepository.findAllById(registerDto.getRoleIdList());
         Set<Role> roleSet = new HashSet<Role>(roles);
         user.setRoles(roleSet);
-//        user.setRoles(Collections.singleton(roleRepository.findByRoleName(RoleName.ROLE_STAFF)));
+
         user.setEmailCode(UUID.randomUUID().toString());
-        userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+        if (roles.get(0).getRoleName().equals(RoleName.ROLE_STAFF)) {
+            Turniket turniket = new Turniket();
+            turniket.setUser(savedUser);
+            turniketRepository.save(turniket);
+        }
+
+        String subject = "Confirm Account";
 
         String text = "your login: " + user.getEmail() + "\n" +
                 "your password: " + password + "\n" +
                 "Confirm => http://localhost:8080/api/auth/verifyEmail?emailCode=" + user.getEmailCode() + "&email=" + user.getEmail();
-        mailService.sendEmail(user.getEmail(), text);
+        mailService.sendEmail(user.getEmail(), subject,text);
 
         return new ApiResponse("Successfully registered. A confirmation message has been sent to email to activate the account", true);
     }

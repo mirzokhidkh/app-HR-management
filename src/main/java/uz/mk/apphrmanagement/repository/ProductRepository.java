@@ -6,6 +6,6 @@ import uz.mk.apphrmanagement.entity.Product;
 
 import java.util.UUID;
 
-@RepositoryRestResource(path = "product")
+@RepositoryRestResource(path = "product",collectionResourceRel = "list")
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 }

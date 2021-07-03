@@ -18,4 +18,7 @@ public class Turniket {
 
     @ManyToOne
     private TurniketStatus turniketStatus;
+
+    @OneToOne
+    private User user;
 }

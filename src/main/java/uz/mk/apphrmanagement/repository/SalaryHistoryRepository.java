@@ -6,6 +6,6 @@ import uz.mk.apphrmanagement.entity.SalaryHistory;
 
 import java.util.UUID;
 
-@RepositoryRestResource(path = "salaryHistory")
+@RepositoryRestResource(path = "salaryHistory",collectionResourceRel = "list")
 public interface SalaryHistoryRepository extends JpaRepository<SalaryHistory, UUID> {
 }

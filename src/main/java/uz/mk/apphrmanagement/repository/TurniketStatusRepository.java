@@ -7,5 +7,5 @@ import uz.mk.apphrmanagement.entity.enums.TurniketStatusName;
 
 @Repository
 public interface TurniketStatusRepository extends JpaRepository<TurniketStatus,Integer> {
-    TurniketStatus findByTurniketStatusName(TurniketStatusName turniketStatusName);
+    TurniketStatus findByName(TurniketStatusName name);
 }

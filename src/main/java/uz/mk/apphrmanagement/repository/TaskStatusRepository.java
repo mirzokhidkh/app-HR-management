@@ -7,5 +7,5 @@ import uz.mk.apphrmanagement.entity.enums.TaskStatusName;
 
 @Repository
 public interface TaskStatusRepository extends JpaRepository<TaskStatus,Integer> {
-    TaskStatus findByTaskStatusName(TaskStatusName taskStatusName);
+    TaskStatus findByName(TaskStatusName name);
 }

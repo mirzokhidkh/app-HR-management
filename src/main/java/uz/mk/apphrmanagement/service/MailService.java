@@ -15,12 +15,12 @@ public class MailService {
     JavaMailSender javaMailSender;
 
 
-    public Boolean sendEmail(String sendingEmail, String text) {
+    public Boolean sendEmail(String sendingEmail, String subject, String text) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setFrom("example@gmail.com");
             mailMessage.setTo(sendingEmail);
-            mailMessage.setSubject("Confirm Account");
+            mailMessage.setSubject(subject);
             mailMessage.setText(text);
             javaMailSender.send(mailMessage);
             return true;

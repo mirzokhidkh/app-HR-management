@@ -3,11 +3,12 @@ package uz.mk.apphrmanagement.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -19,12 +20,15 @@ import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.security.JwtFilter;
 import uz.mk.apphrmanagement.service.AuthService;
 
-import javax.management.relation.RoleInfo;
 import java.util.Properties;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true,
+        prePostEnabled = true
+)public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AuthService authService;
 
@@ -48,12 +52,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers(
-                        "/api/auth/verifyEmail",
-                        "/api/auth/login"
-                )
+                .antMatchers("/api/auth/verifyEmail", "/api/auth/login")
                 .permitAll()
-                .antMatchers(" /api/auth/register").hasAnyRole(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name())
+                .antMatchers("/api/auth/register", "/api/user","/api/task","/api/product")
+                .hasAnyAuthority(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name())
                 .anyRequest().authenticated();
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

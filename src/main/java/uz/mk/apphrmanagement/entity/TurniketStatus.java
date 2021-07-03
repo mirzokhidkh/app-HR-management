@@ -19,6 +19,6 @@ public class TurniketStatus {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    private TurniketStatusName turniketStatusName;
+    private TurniketStatusName name;
 
 }

@@ -4,4 +4,11 @@ values ('ROLE_DIRECTOR'),
        ('ROLE_HR_MANAGER'),
        ('ROLE_STAFF');
 
--- insert into users(id,firstname,lastname,email,password)
+insert into task_status(name)
+values ('NEW'),
+       ('IN_PROGRESS'),
+       ('DONE');
+
+insert into turniket_status(name)
+values ('ENTRY_SIDE'),
+       ('EXIT_SIDE');

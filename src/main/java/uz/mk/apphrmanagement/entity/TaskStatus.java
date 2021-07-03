@@ -18,9 +18,9 @@ public class TaskStatus {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatusName taskStatusName;
+    private TaskStatusName name;
 
-    public TaskStatus(TaskStatusName taskStatusName) {
-        this.taskStatusName = taskStatusName;
+    public TaskStatus(TaskStatusName name) {
+        this.name = name;
     }
 }

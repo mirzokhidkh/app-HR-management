@@ -34,7 +34,7 @@ public class DataLoader implements CommandLineRunner {
                     "John",
                     "Doe",
                     "mirzohid.xasanov@mail.ru",
-                    passwordEncoder.encode("113")
+                    passwordEncoder.encode("123")
                     );
             Role director = roleRepository.findByRoleName(RoleName.ROLE_DIRECTOR);
             user.setRoles(Collections.singleton(director));
