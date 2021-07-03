@@ -82,7 +82,7 @@ public class TaskService {
         task.setTaskStatus(taskStatusRepository.findByName(TaskStatusName.DONE));
         Task savedTask = taskRepository.save(task);
 
-        String emailById = userRepository.getEmailById(task.getUpdatedBy());
+        String emailById = userRepository.getEmailById(task.getCreatedBy());
 
         if (emailById.isBlank()) {
             return new ApiResponse("Director or manager not found", false);
@@ -99,5 +99,10 @@ public class TaskService {
         mailService.sendEmail(emailById, subject, text);
 
         return new ApiResponse("Sent report", true);
+    }
+
+    public List<Task> getAllByUserId(UUID userId) {
+        List<Task> taskList = taskRepository.findAllByUserId(userId);
+        return taskList;
     }
 }

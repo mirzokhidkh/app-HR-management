@@ -26,6 +26,11 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    @GetMapping("/byUser/{userId}")
+    public HttpEntity<?> getAllByUserId(@PathVariable UUID userId) {
+        List<Task> tasks = taskService.getAllByUserId(userId);
+        return ResponseEntity.ok(tasks);
+    }
 
     //ATTACH TASK TO MANAGER OR STAFF
     @PostMapping("/add")
@@ -37,13 +42,10 @@ public class TaskController {
 
     //SEND REPORT ABOUT FINISHED TASK TO MANAGER OR DIRECTOR
     @PostMapping("/sendReport")
-    public HttpEntity<?> sendReport(@RequestParam UUID taskId){
+    public HttpEntity<?> sendReport(@RequestParam UUID taskId) {
         ApiResponse response = taskService.sendReport(taskId);
         return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
-
-
-
 
 
 }

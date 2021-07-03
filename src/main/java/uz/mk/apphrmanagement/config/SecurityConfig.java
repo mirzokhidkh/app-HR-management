@@ -28,7 +28,8 @@ import java.util.Properties;
         securedEnabled = true,
         jsr250Enabled = true,
         prePostEnabled = true
-)public class SecurityConfig extends WebSecurityConfigurerAdapter {
+)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AuthService authService;
 
@@ -54,7 +55,7 @@ import java.util.Properties;
                 .authorizeRequests()
                 .antMatchers("/api/auth/verifyEmail", "/api/auth/login")
                 .permitAll()
-                .antMatchers("/api/auth/register", "/api/user","/api/task","/api/product")
+                .antMatchers(HttpMethod.POST, "/api/auth/register", "/api/user", "/api/task", "/api/product")
                 .hasAnyAuthority(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name())
                 .anyRequest().authenticated();
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
