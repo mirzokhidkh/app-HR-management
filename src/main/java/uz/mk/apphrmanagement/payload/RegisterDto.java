@@ -5,16 +5,17 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Set;
 
 @Data
 public class RegisterDto {
 
     @NotNull
-    @Size(min = 3,max = 50)
+    @Size(min = 3, max = 50)
     private String firstname;
 
     @NotNull
-    @Size(min = 3,max = 50)
+    @Size(min = 3, max = 50)
     private String lastname;
 
     @NotNull
@@ -24,8 +25,8 @@ public class RegisterDto {
     @NotNull
     private String password;
 
-
-
+    @NotNull
+    private Set<Integer> roleIdList;
 
 
 }

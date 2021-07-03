@@ -1,5 +1,7 @@
-insert into role (id, role_name)
-values (1,'ROLE_DIRECTOR'),
-       (2,'ROLE_MANAGER'),
-       (3,'ROLE_HR_MANAGER'),
-       (4,'ROLE_STAFF');
+insert into role (role_name)
+values ('ROLE_DIRECTOR'),
+       ('ROLE_MANAGER'),
+       ('ROLE_HR_MANAGER'),
+       ('ROLE_STAFF');
+
+-- insert into users(id,firstname,lastname,email,password)

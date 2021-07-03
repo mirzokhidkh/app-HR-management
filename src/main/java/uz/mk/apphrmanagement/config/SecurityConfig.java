@@ -15,9 +15,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.security.JwtFilter;
 import uz.mk.apphrmanagement.service.AuthService;
 
+import javax.management.relation.RoleInfo;
 import java.util.Properties;
 
 @Configuration
@@ -47,11 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable()
                 .authorizeRequests()
                 .antMatchers(
-                        "/api/auth/register",
                         "/api/auth/verifyEmail",
                         "/api/auth/login"
                 )
                 .permitAll()
+                .antMatchers(" /api/auth/register").hasAnyRole(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name())
                 .anyRequest().authenticated();
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -65,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setDefaultEncoding("UTF-8");
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
         mailSender.setUsername("mirzokhidkh@gmail.com");//there should be an email

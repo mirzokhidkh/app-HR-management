@@ -9,10 +9,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,6 +36,13 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    public User(String firstname, String lastname, String email, String password) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
+    }
+
     @Column(updatable = false,nullable = false)
     @CreationTimestamp
     private Timestamp createdAt;
@@ -46,6 +52,9 @@ public class User implements UserDetails {
 
     @ManyToMany
     private Set<Role> roles;
+
+    @OneToMany
+    private List<WorkTimeHistory> workTimeHistory;
 
     private boolean accountNonExpired = true;
 
