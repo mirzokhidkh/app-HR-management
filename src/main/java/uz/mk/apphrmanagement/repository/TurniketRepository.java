@@ -8,5 +8,5 @@ import uz.mk.apphrmanagement.entity.Turniket;
 import java.util.UUID;
 
 @RepositoryRestResource(path = "turniket",collectionResourceRel = "list")
-public interface TurniketRepository extends JpaRepository<Turniket, UUID> {
+public interface TurniketRepository extends JpaRepository<Turniket, Integer> {
 }

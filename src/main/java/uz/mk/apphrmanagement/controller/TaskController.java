@@ -40,7 +40,7 @@ public class TaskController {
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 
-    //SEND REPORT ABOUT FINISHED TASK TO MANAGER OR DIRECTOR
+    //SEND REPORT ABOUT COMPLETED TASK TO MANAGER OR DIRECTOR
     @PostMapping("/sendReport")
     public HttpEntity<?> sendReport(@RequestParam UUID taskId) {
         ApiResponse response = taskService.sendReport(taskId);

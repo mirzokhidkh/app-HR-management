@@ -4,7 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import uz.mk.apphrmanagement.entity.User;
+import uz.mk.apphrmanagement.entity.WorkTimeHistory;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,6 +41,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "where ur.users_id = ?1\n" +
             "  and ur.roles_id = ?2", nativeQuery = true)
     Optional<User> findByIdAndRolesInByNative(UUID id, Integer roleId);
+
+
+    boolean existsByIdAndWorkTimeHistoryId(UUID id, UUID workTimeHistory_id);
 
 
 }
