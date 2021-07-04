@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import uz.mk.apphrmanagement.entity.User;
-import uz.mk.apphrmanagement.entity.WorkTimeHistory;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,8 +41,20 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "  and ur.roles_id = ?2", nativeQuery = true)
     Optional<User> findByIdAndRolesInByNative(UUID id, Integer roleId);
 
-
-    boolean existsByIdAndWorkTimeHistoryId(UUID id, UUID workTimeHistory_id);
-
-
+    @Query(value = "select distinct u.id,\n" +
+            "                u.firstname,\n" +
+            "                u.lastname,\n" +
+            "                u.email,\n" +
+            "                u.password,\n" +
+            "                u.created_at,\n" +
+            "                u.updated_at,\n" +
+            "                u.account_non_expired,\n" +
+            "                u.account_non_locked,\n" +
+            "                u.credentials_non_expired,\n" +
+            "                u.enabled,\n" +
+            "                u.email_code\n" +
+            "from users u\n" +
+            "         join users_roles ur on u.id = ur.users_id\n" +
+            "where ur.roles_id = ?1", nativeQuery = true)
+    List<User> findAllByRolesId(Integer roleId);
 }

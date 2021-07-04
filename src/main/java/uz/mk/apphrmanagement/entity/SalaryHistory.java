@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -26,15 +27,21 @@ public class SalaryHistory {
     @Column(nullable = false)
     private Double amount;
 
-    @Column(updatable = false, nullable = false)
-    @CreationTimestamp
-    private Timestamp date;
+    @Column(nullable = false)
+    private Date date;
+
+    @ManyToOne
+    private User user;
 
     @CreatedBy
     private UUID createdBy;
 
     @LastModifiedBy
     private UUID updatedBy;
+
+    @Column(updatable = false, nullable = false)
+    @CreationTimestamp
+    private Timestamp createdAt;
 
     @UpdateTimestamp
     private Timestamp updatedAt;

@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class WorkTimeHistoryService {
@@ -31,6 +32,11 @@ public class WorkTimeHistoryService {
 
     @Autowired
     TurniketStatusRepository turniketStatusRepository;
+
+    public List<WorkTimeHistory> getAllByUserId(UUID userId) {
+        List<WorkTimeHistory> workTimeHistories = workTimeHistoryRepository.findAllByUserId(userId);
+        return workTimeHistories;
+    }
 
     public ApiResponse entry(TurniketDto turniketDto) {
         Optional<Turniket> optionalTurniket = turniketRepository.findById(turniketDto.getTurniketId());
@@ -57,12 +63,8 @@ public class WorkTimeHistoryService {
         WorkTimeHistory workTimeHistory = new WorkTimeHistory();
         workTimeHistory.setDate(workTimeDate);
         workTimeHistory.setEntryTime(entryTime);
+        workTimeHistory.setUser(user);
         WorkTimeHistory savedWorkTime = workTimeHistoryRepository.save(workTimeHistory);
-
-        List<WorkTimeHistory> workTimeHistoryList = user.getWorkTimeHistory();
-        workTimeHistoryList.add(savedWorkTime);
-        user.setWorkTimeHistory(workTimeHistoryList);
-        userRepository.save(user);
 
 
         return new ApiResponse("Staff entered", true, savedWorkTime);
@@ -89,10 +91,8 @@ public class WorkTimeHistoryService {
         workTimeHistory.setDepartureTime(departureTime);
         WorkTimeHistory savedWorkTime = workTimeHistoryRepository.save(workTimeHistory);
 
-
-        userRepository.save(user);
-
         return new ApiResponse("Staff exited", true, savedWorkTime);
     }
+
 
 }

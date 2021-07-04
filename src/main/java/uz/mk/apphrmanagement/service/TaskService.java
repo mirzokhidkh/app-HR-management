@@ -1,12 +1,7 @@
 package uz.mk.apphrmanagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.Task;
 import uz.mk.apphrmanagement.entity.TaskStatus;
 import uz.mk.apphrmanagement.entity.User;
@@ -18,7 +13,9 @@ import uz.mk.apphrmanagement.repository.TaskRepository;
 import uz.mk.apphrmanagement.repository.TaskStatusRepository;
 import uz.mk.apphrmanagement.repository.UserRepository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TaskService {

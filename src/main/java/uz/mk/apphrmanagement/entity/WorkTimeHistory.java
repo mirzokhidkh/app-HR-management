@@ -26,4 +26,7 @@ public class WorkTimeHistory {
 
     private String departureTime;
 
+    @ManyToOne
+    private User user;
+
 }

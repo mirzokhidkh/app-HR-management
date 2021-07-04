@@ -53,9 +53,6 @@ public class User implements UserDetails {
     @ManyToMany
     private Set<Role> roles;
 
-    @OneToMany
-    private List<WorkTimeHistory> workTimeHistory;
-
     private boolean accountNonExpired = true;
 
     private boolean accountNonLocked = true;

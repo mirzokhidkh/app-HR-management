@@ -26,11 +26,11 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/byUser/{userId}")
-    public HttpEntity<?> getAllByUserId(@PathVariable UUID userId) {
-        List<Task> tasks = taskService.getAllByUserId(userId);
-        return ResponseEntity.ok(tasks);
-    }
+//    @GetMapping("/byUser/{userId}")
+//    public HttpEntity<?> getAllByUserId(@PathVariable UUID userId) {
+//        List<Task> tasks = taskService.getAllByUserId(userId);
+//        return ResponseEntity.ok(tasks);
+//    }
 
     //ATTACH TASK TO MANAGER OR STAFF
     @PostMapping("/add")
