@@ -1,12 +1,11 @@
 package uz.mk.apphrmanagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,14 +17,13 @@ import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.payload.LoginDto;
+import uz.mk.apphrmanagement.payload.PasswordDto;
 import uz.mk.apphrmanagement.payload.RegisterDto;
 import uz.mk.apphrmanagement.repository.RoleRepository;
 import uz.mk.apphrmanagement.repository.TurniketRepository;
 import uz.mk.apphrmanagement.repository.UserRepository;
 import uz.mk.apphrmanagement.security.JwtProvider;
-import uz.mk.apphrmanagement.utils.CommonUtils;
 
-import javax.persistence.EntityManager;
 import java.util.*;
 
 @Service
@@ -55,6 +53,21 @@ public class AuthService implements UserDetailsService {
 
 
     public ApiResponse register(RegisterDto registerDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User userPrincipal = (User) authentication.getPrincipal();
+
+        RoleName userRole = null;
+        Set<Role> userRoles = userPrincipal.getRoles();
+        for (Role role : userRoles) {
+            userRole = role.getRoleName();
+        }
+
+
+        assert userRole != null;
+        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
+            return new ApiResponse("You don not have empowerment to add user", false);
+        }
+
         boolean existsByEmail = userRepository.existsByEmail(registerDto.getEmail());
         if (existsByEmail) {
             return new ApiResponse("Email already exists", false);
@@ -64,22 +77,15 @@ public class AuthService implements UserDetailsService {
         user.setFirstname(registerDto.getFirstname());
         user.setLastname(registerDto.getLastname());
         user.setEmail(registerDto.getEmail());
-        String password = null;
-        if (registerDto.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-            password = registerDto.getPassword();
-        } else {
-            password = CommonUtils.generateCode().toString();
-            user.setPassword(passwordEncoder.encode(password));
-        }
-        List<Role> roles = roleRepository.findAllById(registerDto.getRoleIdList());
-        Set<Role> roleSet = new HashSet<Role>(roles);
+
+        Role role = roleRepository.getById(registerDto.getRoleId());
+        Set<Role> roleSet = new HashSet<Role>(Collections.singleton(role));
         user.setRoles(roleSet);
 
         user.setEmailCode(UUID.randomUUID().toString());
 
         User savedUser = userRepository.save(user);
-        if (roles.get(0).getRoleName().equals(RoleName.ROLE_STAFF)) {
+        if (role.getRoleName().equals(RoleName.ROLE_STAFF)) {
             Turniket turniket = new Turniket();
             turniket.setUser(savedUser);
             turniketRepository.save(turniket);
@@ -88,9 +94,8 @@ public class AuthService implements UserDetailsService {
         String subject = "Confirm Account";
 
         String text = "your login: " + user.getEmail() + "\n" +
-                "your password: " + password + "\n" +
                 "Confirm => http://localhost:8080/api/auth/verifyEmail?emailCode=" + user.getEmailCode() + "&email=" + user.getEmail();
-        mailService.sendEmail(user.getEmail(), subject,text);
+        mailService.sendEmail(user.getEmail(), subject, text);
 
         return new ApiResponse("Successfully registered. A confirmation message has been sent to email to activate the account", true);
     }
@@ -109,6 +114,22 @@ public class AuthService implements UserDetailsService {
         return new ApiResponse("Account already confirmed", false);
     }
 
+    public ApiResponse setPassword(PasswordDto passwordDto) {
+        Optional<User> optionalUser = userRepository.findById(passwordDto.getUserId());
+        if (optionalUser.isEmpty()) {
+            return new ApiResponse("User not found", false);
+        }
+
+        User user = optionalUser.get();
+        if (user.getPassword() != null) {
+            return new ApiResponse("You have already set password", false);
+
+        }
+        user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
+        userRepository.save(user);
+
+        return new ApiResponse("Go to login to enter to system", true);
+    }
 
     public ApiResponse login(LoginDto loginDto) {
         try {
@@ -131,4 +152,6 @@ public class AuthService implements UserDetailsService {
         }
         throw new UsernameNotFoundException(email + " not found");
     }
+
+
 }

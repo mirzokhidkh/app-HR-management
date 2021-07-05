@@ -20,15 +20,4 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/user/byRole/{roleId}")
-    public HttpEntity<?> getAllByRoleId(@PathVariable Integer roleId) {
-        List<User> users = userService.getAllByRoleId(roleId);
-        return ResponseEntity.ok(users);
-    }
-
-
-
-
-
-
 }

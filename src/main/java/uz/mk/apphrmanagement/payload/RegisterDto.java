@@ -23,10 +23,7 @@ public class RegisterDto {
     private String email;
 
     @NotNull
-    private String password;
-
-    @NotNull
-    private Set<Integer> roleIdList;
+    private Integer roleId;
 
 
 }

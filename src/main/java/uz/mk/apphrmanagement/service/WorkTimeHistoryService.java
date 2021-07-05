@@ -1,10 +1,14 @@
 package uz.mk.apphrmanagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.Turniket;
 import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.WorkTimeHistory;
+import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.payload.TurniketDto;
 import uz.mk.apphrmanagement.repository.TurniketRepository;
@@ -13,10 +17,7 @@ import uz.mk.apphrmanagement.repository.UserRepository;
 import uz.mk.apphrmanagement.repository.WorkTimeHistoryRepository;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class WorkTimeHistoryService {
@@ -33,9 +34,24 @@ public class WorkTimeHistoryService {
     @Autowired
     TurniketStatusRepository turniketStatusRepository;
 
-    public List<WorkTimeHistory> getAllByUserId(UUID userId) {
+    public ApiResponse getAllByUserId(UUID userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User userPrincipal = (User) authentication.getPrincipal();
+
+        RoleName userRole = null;
+        Set<Role> userRoles = userPrincipal.getRoles();
+        for (Role role : userRoles) {
+            userRole = role.getRoleName();
+        }
+
+
+        assert userRole != null;
+        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
+            return new ApiResponse("You don not have empowerment to see staff's work-time histories", false);
+        }
+
         List<WorkTimeHistory> workTimeHistories = workTimeHistoryRepository.findAllByUserId(userId);
-        return workTimeHistories;
+        return new ApiResponse("Work-time histories", true, workTimeHistories);
     }
 
     public ApiResponse entry(TurniketDto turniketDto) {

@@ -6,7 +6,6 @@ import uz.mk.apphrmanagement.entity.SalaryHistory;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RepositoryRestResource(path = "salaryHistory",collectionResourceRel = "list")

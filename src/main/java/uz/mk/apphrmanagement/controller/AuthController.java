@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.payload.LoginDto;
+import uz.mk.apphrmanagement.payload.PasswordDto;
 import uz.mk.apphrmanagement.payload.RegisterDto;
 import uz.mk.apphrmanagement.service.AuthService;
 
@@ -26,6 +27,12 @@ public class AuthController {
     @GetMapping("/verifyEmail")
     public HttpEntity<?> verifyEmail(@RequestParam String emailCode, @RequestParam String email) {
         ApiResponse response = authService.verifyEmail(emailCode, email);
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
+    }
+
+    @PostMapping("/verifyEmail")
+    public HttpEntity<?> setPassword(@RequestBody PasswordDto passwordDto) {
+        ApiResponse response = authService.setPassword(passwordDto);
         return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 

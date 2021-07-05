@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uz.mk.apphrmanagement.entity.SalaryHistory;
-import uz.mk.apphrmanagement.entity.Task;
-import uz.mk.apphrmanagement.entity.WorkTimeHistory;
-import uz.mk.apphrmanagement.repository.UserRepository;
+import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.service.SalaryHistoryService;
 import uz.mk.apphrmanagement.service.TaskService;
+import uz.mk.apphrmanagement.service.UserService;
 import uz.mk.apphrmanagement.service.WorkTimeHistoryService;
 
 import java.sql.Date;
@@ -21,10 +20,8 @@ import java.util.UUID;
 
 @RestController("/management")
 public class ManagementController {
-
     @Autowired
-    UserRepository userRepository;
-
+    UserService userService;
 
     @Autowired
     TaskService taskService;
@@ -35,30 +32,36 @@ public class ManagementController {
     @Autowired
     SalaryHistoryService salaryHistoryService;
 
+    @GetMapping("/staff")
+    public HttpEntity<?> getAllStaff() {
+        ApiResponse response = userService.getAllStaff();
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
+    }
+
     @GetMapping("/workTimeHistory/{userId}")
     public HttpEntity<?> getWorkTimeHistoriesByUserId(@PathVariable UUID userId) {
-        List<WorkTimeHistory> workTimeHistories = workTimeHistoryService.getAllByUserId(userId);
-        return ResponseEntity.ok(workTimeHistories);
+        ApiResponse response = workTimeHistoryService.getAllByUserId(userId);
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 
 
     @GetMapping("/task/{userId}")
     public HttpEntity<?> getTasksByUserId(@PathVariable UUID userId) {
-        List<Task> tasks = taskService.getAllByUserId(userId);
-        return ResponseEntity.ok(tasks);
+        ApiResponse response = taskService.getAllByUserId(userId);
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 
 
     @GetMapping("/salaryHistory/byMonth")
     public HttpEntity<?> getSalaryHistoriesByMonth(@RequestParam Date minDate, @RequestParam Date maxDate) {
-        List<SalaryHistory> salaryHistoryList = salaryHistoryService.getAllByMonth(minDate, maxDate);
-        return ResponseEntity.ok(salaryHistoryList);
+        ApiResponse response = salaryHistoryService.getAllByMonth(minDate, maxDate);
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 
 
     @GetMapping("/salaryHistory/byUserId/{userId}")
     public HttpEntity<?> getSalaryHistoriesByUserId(@PathVariable UUID userId) {
-        List<SalaryHistory> salaryHistoryList = salaryHistoryService.getAllByUserId(userId);
-        return ResponseEntity.ok(salaryHistoryList);
+        ApiResponse response = salaryHistoryService.getAllByUserId(userId);
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 }

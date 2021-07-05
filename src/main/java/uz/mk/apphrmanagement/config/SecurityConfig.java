@@ -3,7 +3,6 @@ package uz.mk.apphrmanagement.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.security.JwtFilter;
 import uz.mk.apphrmanagement.service.AuthService;
 
@@ -24,11 +22,6 @@ import java.util.Properties;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-        securedEnabled = true,
-        jsr250Enabled = true,
-        prePostEnabled = true
-)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AuthService authService;
@@ -55,14 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/verifyEmail", "/api/auth/login")
                 .permitAll()
-                .antMatchers(HttpMethod.GET, "/management/**")
-                .hasAnyAuthority(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name())
-                .antMatchers(HttpMethod.POST, "/api/auth/register", "/api/user", "/api/task", "/api/product")
-                .hasAnyAuthority(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name())
-                .antMatchers(HttpMethod.POST, "/api/task/?roleId=4")
-                .hasAnyAuthority(RoleName.ROLE_DIRECTOR.name(), RoleName.ROLE_HR_MANAGER.name(), RoleName.ROLE_MANAGER.name())
-                .antMatchers("/api/task/?roleId=2")
-                .hasAuthority(RoleName.ROLE_DIRECTOR.name())
                 .anyRequest().authenticated();
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
