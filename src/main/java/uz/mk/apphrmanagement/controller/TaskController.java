@@ -2,10 +2,12 @@ package uz.mk.apphrmanagement.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.mk.apphrmanagement.entity.Task;
 import uz.mk.apphrmanagement.payload.ApiResponse;
+import uz.mk.apphrmanagement.payload.ReportDto;
 import uz.mk.apphrmanagement.payload.TaskDto;
 import uz.mk.apphrmanagement.service.TaskService;
 
@@ -41,16 +43,22 @@ public class TaskController {
     }
 
     @GetMapping("/verifyTask")
-    public HttpEntity<?> verifyTask(@RequestParam String taskId,@RequestParam String userId){
-        ApiResponse response = taskService.verifyTask(UUID.fromString(taskId),UUID.fromString(userId));
+    public HttpEntity<?> verifyTask(@RequestParam String taskId, @RequestParam String userId) {
+        ApiResponse response = taskService.verifyTask(UUID.fromString(taskId), UUID.fromString(userId));
         return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
     }
 
     //SEND REPORT ABOUT COMPLETED TASK TO MANAGER OR DIRECTOR
     @PostMapping("/sendReport")
-    public HttpEntity<?> sendReport(@RequestParam UUID taskId) {
-        ApiResponse response = taskService.sendReport(taskId);
+    public HttpEntity<?> sendReport(@RequestParam UUID taskId, @RequestBody ReportDto reportDto) {
+        ApiResponse response = taskService.sendReport(taskId, reportDto);
         return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
+    }
+
+    @PostMapping("/changeTask")
+    public HttpEntity<?> changeTask(@RequestParam String taskId, @RequestParam String userId) {
+        ApiResponse response = taskService.changeTask(UUID.fromString(taskId), UUID.fromString(userId));
+        return ResponseEntity.status(response.isSuccess() ? 202 : 409).body(response);
     }
 
 

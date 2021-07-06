@@ -8,6 +8,7 @@ import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.entity.enums.TaskStatusName;
 import uz.mk.apphrmanagement.payload.ApiResponse;
+import uz.mk.apphrmanagement.payload.ReportDto;
 import uz.mk.apphrmanagement.payload.TaskDto;
 import uz.mk.apphrmanagement.repository.RoleRepository;
 import uz.mk.apphrmanagement.repository.TaskRepository;
@@ -85,7 +86,7 @@ public class TaskService {
         String userId = user.getId().toString();
 
         String subject = "A new task has been added to you";
-        String text= "Name: " + savedTask.getName() + "\n" +
+        String text = "Name: " + savedTask.getName() + "\n" +
                 "Description: " + savedTask.getDescription() + "\n" +
                 "Expire date: " + savedTask.getExpireDate() + "\n" +
                 "Task status: " + savedTask.getTaskStatus().getName() + "\n" +
@@ -120,7 +121,7 @@ public class TaskService {
         return new ApiResponse("Task attached you", true);
     }
 
-    public ApiResponse sendReport(UUID taskId) {
+    public ApiResponse sendReport(UUID taskId, ReportDto reportDto) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if (!optionalTask.isPresent()) {
             return new ApiResponse("Task not found", false);
@@ -142,7 +143,8 @@ public class TaskService {
                 "Description: " + savedTask.getDescription() + "\n" +
                 "Expire date: " + savedTask.getExpireDate() + "\n" +
                 "Task status: " + savedTask.getTaskStatus() + "\n" +
-                "Full name : " + fullNameById;
+                "Full name : " + fullNameById + "\n" +
+                "Conclusion:" + reportDto.getConclusion();
 
         mailService.sendEmail(emailById, subject, text);
 
@@ -162,5 +164,29 @@ public class TaskService {
 
         List<Task> taskList = taskRepository.findAllByUserId(userId);
         return new ApiResponse("Staff's tasks", true, taskList);
+    }
+
+    public ApiResponse changeTask(UUID taskId, UUID userId) {
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (!optionalTask.isPresent()) {
+            return new ApiResponse("Task not found", false);
+        }
+        Task task = optionalTask.get();
+        if (task.getTaskStatus().getName().equals(TaskStatusName.DONE)) {
+            return new ApiResponse("Task already done", false);
+        }
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            return new ApiResponse("User not found", false);
+        }
+        boolean existsByUserId = taskRepository.existsByUserId(userId);
+        if (existsByUserId) {
+            return new ApiResponse("User has already task that is in progress", false);
+        }
+
+        task.setUser(optionalUser.get());
+        Task changedTask = taskRepository.save(task);
+
+        return new ApiResponse("Task changed to another user", true, changedTask);
     }
 }
