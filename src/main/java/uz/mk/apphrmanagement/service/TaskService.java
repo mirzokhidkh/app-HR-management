@@ -44,7 +44,7 @@ public class TaskService {
     public ApiResponse add(Integer roleId,
                            TaskDto taskDto) {
         Optional<User> optionalUser = userRepository.findByIdAndRolesInByNative(taskDto.getUserId(), roleId);
-        if (optionalUser.isEmpty()) {
+        if (!optionalUser.isPresent()) {
             return new ApiResponse("User not found", false);
         }
 
@@ -97,7 +97,7 @@ public class TaskService {
 
     public ApiResponse sendReport(UUID taskId) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isEmpty()) {
+        if (!optionalTask.isPresent()) {
             return new ApiResponse("Task not found", false);
         }
 
@@ -107,7 +107,7 @@ public class TaskService {
 
         String emailById = userRepository.getEmailById(task.getCreatedBy());
 
-        if (emailById.isBlank()) {
+        if (emailById.isEmpty()) {
             return new ApiResponse("Director or manager not found", false);
         }
         String fullNameById = userRepository.getFullNameById(savedTask.getUser().getId());

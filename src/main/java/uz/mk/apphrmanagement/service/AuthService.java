@@ -54,19 +54,31 @@ public class AuthService implements UserDetailsService {
 
     public ApiResponse register(RegisterDto registerDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userPrincipal = (User) authentication.getPrincipal();
+        User principalUser = (User) authentication.getPrincipal();
 
-        RoleName userRole = null;
-        Set<Role> userRoles = userPrincipal.getRoles();
-        for (Role role : userRoles) {
-            userRole = role.getRoleName();
+        RoleName principalUserRole = null;
+        Set<Role> principalUserRoles = principalUser.getRoles();
+        for (Role role : principalUserRoles) {
+            principalUserRole = role.getRoleName();
         }
 
+        Role role = roleRepository.getById(registerDto.getRoleId());
+        RoleName userRole = role.getRoleName();
 
-        assert userRole != null;
-        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
-            return new ApiResponse("You don not have empowerment to add user", false);
+        assert principalUserRole != null
+                ;
+        //DIRECTOR CAN ADD MANAGER OR STAFF,
+        boolean isDirectorAuthority = principalUserRole.equals(RoleName.ROLE_DIRECTOR) &&
+                (userRole.equals(RoleName.ROLE_HR_MANAGER) || userRole.equals(RoleName.ROLE_MANAGER) || userRole.equals(RoleName.ROLE_STAFF));
+
+        //HR MANAGER ONLY CAN ADD STAFF
+        boolean isHRManagerAuthority = principalUserRole.equals(RoleName.ROLE_HR_MANAGER) && userRole.equals(RoleName.ROLE_STAFF);
+
+        // IF CONDITION WILL BE TRUE , SO PRINCIPAL USER IS MANAGER OR STAFF. THEREFORE THEY CAN'T ADD ANYONE
+        if (!(isDirectorAuthority || isHRManagerAuthority)) {
+            return new ApiResponse("You do not have the authority to add a user with such a role", false);
         }
+
 
         boolean existsByEmail = userRepository.existsByEmail(registerDto.getEmail());
         if (existsByEmail) {
@@ -78,7 +90,7 @@ public class AuthService implements UserDetailsService {
         user.setLastname(registerDto.getLastname());
         user.setEmail(registerDto.getEmail());
 
-        Role role = roleRepository.getById(registerDto.getRoleId());
+
         Set<Role> roleSet = new HashSet<Role>(Collections.singleton(role));
         user.setRoles(roleSet);
 
@@ -116,7 +128,7 @@ public class AuthService implements UserDetailsService {
 
     public ApiResponse setPassword(PasswordDto passwordDto) {
         Optional<User> optionalUser = userRepository.findById(passwordDto.getUserId());
-        if (optionalUser.isEmpty()) {
+        if (!optionalUser.isPresent()) {
             return new ApiResponse("User not found", false);
         }
 
@@ -128,7 +140,7 @@ public class AuthService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
         userRepository.save(user);
 
-        return new ApiResponse("Go to login to enter to system", true);
+        return new ApiResponse("Successfully set password. Go to login to enter to system", true);
     }
 
     public ApiResponse login(LoginDto loginDto) {

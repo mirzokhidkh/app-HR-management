@@ -56,7 +56,7 @@ public class WorkTimeHistoryService {
 
     public ApiResponse entry(TurniketDto turniketDto) {
         Optional<Turniket> optionalTurniket = turniketRepository.findById(turniketDto.getTurniketId());
-        if (optionalTurniket.isEmpty()) {
+        if (!optionalTurniket.isPresent()) {
             return new ApiResponse("Turniket not found", false);
         }
         Date date = new Date();
@@ -88,7 +88,7 @@ public class WorkTimeHistoryService {
 
     public ApiResponse exit(TurniketDto turniketDto) {
         Optional<Turniket> optionalTurniket = turniketRepository.findById(turniketDto.getTurniketId());
-        if (optionalTurniket.isEmpty()) {
+        if (!optionalTurniket.isPresent()) {
             return new ApiResponse("Turniket not found", false);
         }
         Turniket turniket = optionalTurniket.get();
