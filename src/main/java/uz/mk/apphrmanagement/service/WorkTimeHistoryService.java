@@ -15,6 +15,7 @@ import uz.mk.apphrmanagement.repository.TurniketRepository;
 import uz.mk.apphrmanagement.repository.TurniketStatusRepository;
 import uz.mk.apphrmanagement.repository.UserRepository;
 import uz.mk.apphrmanagement.repository.WorkTimeHistoryRepository;
+import uz.mk.apphrmanagement.utils.CommonUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,18 +36,13 @@ public class WorkTimeHistoryService {
     TurniketStatusRepository turniketStatusRepository;
 
     public ApiResponse getAllByUserId(UUID userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userPrincipal = (User) authentication.getPrincipal();
-
-        RoleName userRole = null;
-        Set<Role> userRoles = userPrincipal.getRoles();
-        for (Role role : userRoles) {
-            userRole = role.getRoleName();
-        }
+        Map<String, Object> contextHolder = CommonUtils.getPrincipalAndRoleFromSecurityContextHolder();
+//        User principalUser = (User) contextHolder.get("principalUser");
+        RoleName principalUserRole = (RoleName) contextHolder.get("principalUserRole");
 
 
-        assert userRole != null;
-        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
+        assert principalUserRole != null;
+        if (principalUserRole.equals(RoleName.ROLE_STAFF) || principalUserRole.equals(RoleName.ROLE_MANAGER)) {
             return new ApiResponse("You don not have empowerment to see staff's work-time histories", false);
         }
 

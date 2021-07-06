@@ -6,7 +6,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.Task;
-import uz.mk.apphrmanagement.entity.TaskStatus;
 import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.entity.enums.TaskStatusName;
@@ -16,6 +15,7 @@ import uz.mk.apphrmanagement.repository.RoleRepository;
 import uz.mk.apphrmanagement.repository.TaskRepository;
 import uz.mk.apphrmanagement.repository.TaskStatusRepository;
 import uz.mk.apphrmanagement.repository.UserRepository;
+import uz.mk.apphrmanagement.utils.CommonUtils;
 
 import java.util.*;
 
@@ -41,33 +41,36 @@ public class TaskService {
     }
 
     //ATTACH TASK TO MANAGER OR STAFF
-    public ApiResponse add(Integer roleId,
-                           TaskDto taskDto) {
-        Optional<User> optionalUser = userRepository.findByIdAndRolesInByNative(taskDto.getUserId(), roleId);
+    public ApiResponse add(TaskDto taskDto) {
+        Optional<User> optionalUser = userRepository.findById(taskDto.getUserId());
         if (!optionalUser.isPresent()) {
             return new ApiResponse("User not found", false);
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userPrincipal = (User) authentication.getPrincipal();
+        Map<String, Object> contextHolder = CommonUtils.getPrincipalAndRoleFromSecurityContextHolder();
+//        User principalUser = (User) contextHolder.get("principalUser");
+        RoleName principalUserRole = (RoleName) contextHolder.get("principalUserRole");
 
-        RoleName userPrincipalRole = null;
-        Set<Role> userPrincipalRoles = userPrincipal.getRoles();
-        for (Role role : userPrincipalRoles) {
-            userPrincipalRole = role.getRoleName();
-        }
 
+        RoleName userRole = null;
         User user = optionalUser.get();
         Set<Role> roles = user.getRoles();
-        RoleName userRole = null;
         for (Role role : roles) {
             userRole = role.getRoleName();
         }
 
-        assert userPrincipalRole != null;
-        if (userPrincipalRole.equals(RoleName.ROLE_STAFF) ||
-                !( (userPrincipalRole.equals(RoleName.ROLE_MANAGER) || userPrincipalRole.equals(RoleName.ROLE_HR_MANAGER)) && Objects.equals(userRole, RoleName.ROLE_STAFF))) {
-            return new ApiResponse("You don not have empowerment to add task", false);
+        assert principalUserRole != null;
+        //DIRECTOR CAN ATTACH TASK TO  MANAGER OR STAFF,
+        boolean isDirectorAuthority = principalUserRole.equals(RoleName.ROLE_DIRECTOR) &&
+                (Objects.equals(userRole, RoleName.ROLE_HR_MANAGER) || Objects.equals(userRole, RoleName.ROLE_MANAGER) || Objects.equals(userRole, RoleName.ROLE_STAFF));
+
+        //MANAGER ONLY CAN ATTACH TASK TO STAFF
+        boolean isManagerAuthority = (principalUserRole.equals(RoleName.ROLE_HR_MANAGER) || principalUserRole.equals(RoleName.ROLE_MANAGER)) &&
+                Objects.equals(userRole, RoleName.ROLE_STAFF);
+
+        // IF CONDITION WILL BE TRUE , SO PRINCIPAL USER IS STAFF. THEREFORE HE/SHE CAN'T ATTACH TASK ANYONE
+        if (!(isDirectorAuthority || isManagerAuthority)) {
+            return new ApiResponse("Your position is " + principalUserRole + ". You do not have the authority to attach a user with such a role", false);
         }
 
 
@@ -75,19 +78,17 @@ public class TaskService {
         task.setName(taskDto.getName());
         task.setDescription(taskDto.getDescription());
         task.setExpireDate(taskDto.getExpireDate());
-
-        Optional<TaskStatus> optionalTaskStatus = taskStatusRepository.findById(taskDto.getTaskStatusId());
-        task.setTaskStatus(optionalTaskStatus.get());
+        task.setTaskStatus(taskStatusRepository.findByName(TaskStatusName.NEW));
         task.setUser(optionalUser.get());
         Task savedTask = taskRepository.save(task);
 
-        String emailById = userRepository.getEmailById(taskDto.getUserId());
+        String emailById = user.getEmail();
 
         String subject = "A new task has been added to you";
         String text = "Name: " + savedTask.getName() + "\n" +
                 "Description: " + savedTask.getDescription() + "\n" +
                 "Expire date: " + savedTask.getExpireDate() + "\n" +
-                "Task status: " + savedTask.getTaskStatus() + "\n";
+                "Task status: " + savedTask.getTaskStatus().getName() + "\n";
 
         mailService.sendEmail(emailById, subject, text);
 
@@ -125,22 +126,17 @@ public class TaskService {
     }
 
     public ApiResponse getAllByUserId(UUID userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userPrincipal = (User) authentication.getPrincipal();
-
-        RoleName userRole = null;
-        Set<Role> userRoles = userPrincipal.getRoles();
-        for (Role role : userRoles) {
-            userRole = role.getRoleName();
-        }
+        Map<String, Object> contextHolder = CommonUtils.getPrincipalAndRoleFromSecurityContextHolder();
+//        User principalUser = (User) contextHolder.get("principalUser");
+        RoleName principalUserRole = (RoleName) contextHolder.get("principalUserRole");
 
 
-        assert userRole != null;
-        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
+        assert principalUserRole != null;
+        if (principalUserRole.equals(RoleName.ROLE_STAFF) || principalUserRole.equals(RoleName.ROLE_MANAGER)) {
             return new ApiResponse("You don not have empowerment to see staff's task information", false);
         }
 
         List<Task> taskList = taskRepository.findAllByUserId(userId);
-        return new ApiResponse("Staff's tasks", true,taskList);
+        return new ApiResponse("Staff's tasks", true, taskList);
     }
 }

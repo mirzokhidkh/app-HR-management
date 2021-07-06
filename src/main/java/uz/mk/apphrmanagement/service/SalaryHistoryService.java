@@ -10,9 +10,11 @@ import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.repository.SalaryHistoryRepository;
+import uz.mk.apphrmanagement.utils.CommonUtils;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,17 +26,12 @@ public class SalaryHistoryService {
 
 
     public ApiResponse getAllByMonth(Date minDate, Date maxDate) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userPrincipal = (User) authentication.getPrincipal();
+        Map<String, Object> contextHolder = CommonUtils.getPrincipalAndRoleFromSecurityContextHolder();
+//        User principalUser = (User) contextHolder.get("principalUser");
+        RoleName principalUserRole = (RoleName) contextHolder.get("principalUserRole");
 
-        RoleName userRole = null;
-        Set<Role> userRoles = userPrincipal.getRoles();
-        for (Role role : userRoles) {
-            userRole = role.getRoleName();
-        }
-
-        assert userRole != null;
-        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
+        assert principalUserRole != null;
+        if (principalUserRole.equals(RoleName.ROLE_STAFF) || principalUserRole.equals(RoleName.ROLE_MANAGER)) {
             return new ApiResponse("You don not have empowerment to see staff's salary history ", false);
         }
 
@@ -43,17 +40,12 @@ public class SalaryHistoryService {
     }
 
     public ApiResponse getAllByUserId(UUID userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userPrincipal = (User) authentication.getPrincipal();
+        Map<String, Object> contextHolder = CommonUtils.getPrincipalAndRoleFromSecurityContextHolder();
+//        User principalUser = (User) contextHolder.get("principalUser");
+        RoleName principalUserRole = (RoleName) contextHolder.get("principalUserRole");
 
-        RoleName userRole = null;
-        Set<Role> userRoles = userPrincipal.getRoles();
-        for (Role role : userRoles) {
-            userRole = role.getRoleName();
-        }
-
-        assert userRole != null;
-        if (userRole.equals(RoleName.ROLE_STAFF) || userRole.equals(RoleName.ROLE_MANAGER)) {
+        assert principalUserRole != null;
+        if (principalUserRole.equals(RoleName.ROLE_STAFF) || principalUserRole.equals(RoleName.ROLE_MANAGER)) {
             return new ApiResponse("You don not have empowerment to see staff's salary history ", false);
         }
 

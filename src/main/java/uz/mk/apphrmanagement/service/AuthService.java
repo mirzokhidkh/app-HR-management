@@ -23,6 +23,7 @@ import uz.mk.apphrmanagement.repository.RoleRepository;
 import uz.mk.apphrmanagement.repository.TurniketRepository;
 import uz.mk.apphrmanagement.repository.UserRepository;
 import uz.mk.apphrmanagement.security.JwtProvider;
+import uz.mk.apphrmanagement.utils.CommonUtils;
 
 import java.util.*;
 
@@ -53,20 +54,16 @@ public class AuthService implements UserDetailsService {
 
 
     public ApiResponse register(RegisterDto registerDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User principalUser = (User) authentication.getPrincipal();
 
-        RoleName principalUserRole = null;
-        Set<Role> principalUserRoles = principalUser.getRoles();
-        for (Role role : principalUserRoles) {
-            principalUserRole = role.getRoleName();
-        }
+        Map<String, Object> contextHolder = CommonUtils.getPrincipalAndRoleFromSecurityContextHolder();
+//        User principalUser = (User) contextHolder.get("principalUser");
+        RoleName principalUserRole = (RoleName) contextHolder.get("principalUserRole");
 
         Role role = roleRepository.getById(registerDto.getRoleId());
         RoleName userRole = role.getRoleName();
 
-        assert principalUserRole != null
-                ;
+        assert principalUserRole != null;
+
         //DIRECTOR CAN ADD MANAGER OR STAFF,
         boolean isDirectorAuthority = principalUserRole.equals(RoleName.ROLE_DIRECTOR) &&
                 (userRole.equals(RoleName.ROLE_HR_MANAGER) || userRole.equals(RoleName.ROLE_MANAGER) || userRole.equals(RoleName.ROLE_STAFF));
@@ -76,7 +73,7 @@ public class AuthService implements UserDetailsService {
 
         // IF CONDITION WILL BE TRUE , SO PRINCIPAL USER IS MANAGER OR STAFF. THEREFORE THEY CAN'T ADD ANYONE
         if (!(isDirectorAuthority || isHRManagerAuthority)) {
-            return new ApiResponse("You do not have the authority to add a user with such a role", false);
+            return new ApiResponse("Your position is " + principalUserRole + ".You do not have the authority to add a user with such a role", false);
         }
 
 

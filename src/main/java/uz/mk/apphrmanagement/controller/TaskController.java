@@ -34,9 +34,9 @@ public class TaskController {
 
     //ATTACH TASK TO MANAGER OR STAFF
     @PostMapping("/add")
-    public HttpEntity<?> add(@RequestParam Integer roleId,
-                             @RequestBody TaskDto taskDto) {
-        ApiResponse response = taskService.add(roleId, taskDto);
+    public HttpEntity<?> add(
+            @RequestBody TaskDto taskDto) {
+        ApiResponse response = taskService.add(taskDto);
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 
