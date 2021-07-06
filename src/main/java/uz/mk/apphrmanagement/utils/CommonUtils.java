@@ -7,8 +7,10 @@ import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 
-import javax.swing.plaf.PanelUI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 public class CommonUtils {
 

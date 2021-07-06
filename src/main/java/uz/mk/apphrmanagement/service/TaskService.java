@@ -1,8 +1,6 @@
 package uz.mk.apphrmanagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.Task;
@@ -79,21 +77,47 @@ public class TaskService {
         task.setDescription(taskDto.getDescription());
         task.setExpireDate(taskDto.getExpireDate());
         task.setTaskStatus(taskStatusRepository.findByName(TaskStatusName.NEW));
-        task.setUser(optionalUser.get());
+//        task.setUser(optionalUser.get());
         Task savedTask = taskRepository.save(task);
 
         String emailById = user.getEmail();
+        String taskId = savedTask.getId().toString();
+        String userId = user.getId().toString();
 
         String subject = "A new task has been added to you";
-        String text = "Name: " + savedTask.getName() + "\n" +
+        String text= "Name: " + savedTask.getName() + "\n" +
                 "Description: " + savedTask.getDescription() + "\n" +
                 "Expire date: " + savedTask.getExpireDate() + "\n" +
-                "Task status: " + savedTask.getTaskStatus().getName() + "\n";
+                "Task status: " + savedTask.getTaskStatus().getName() + "\n" +
+                "Confirm => http://localhost:8080/api/task/verifyTask?taskId=" + taskId + "&userId=" + userId;
 
         mailService.sendEmail(emailById, subject, text);
 
-        return new ApiResponse("The message was sent to the user's email to which the task was attached ", true, savedTask);
+        return new ApiResponse("The message was sent to the user's email to which the task was attached. Confirm message", true, savedTask);
 
+    }
+
+    public ApiResponse verifyTask(UUID taskId, UUID userId) {
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (!optionalTask.isPresent()) {
+            return new ApiResponse("Task not found", false);
+        }
+
+        boolean existsByUserId = taskRepository.existsByUserId(userId);
+        if (existsByUserId) {
+            return new ApiResponse("User has already task that is in progress", false);
+        }
+
+        boolean existsById = userRepository.existsById(userId);
+        if (!existsById) {
+            return new ApiResponse("User not found", false);
+        }
+
+        Task task = optionalTask.get();
+        task.setTaskStatus(taskStatusRepository.findByName(TaskStatusName.IN_PROGRESS));
+        task.setUser(userRepository.getById(userId));
+        taskRepository.save(task);
+        return new ApiResponse("Task attached you", true);
     }
 
     public ApiResponse sendReport(UUID taskId) {

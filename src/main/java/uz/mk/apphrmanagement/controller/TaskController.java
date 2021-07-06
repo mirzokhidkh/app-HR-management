@@ -40,6 +40,12 @@ public class TaskController {
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 
+    @GetMapping("/verifyTask")
+    public HttpEntity<?> verifyTask(@RequestParam String taskId,@RequestParam String userId){
+        ApiResponse response = taskService.verifyTask(UUID.fromString(taskId),UUID.fromString(userId));
+        return ResponseEntity.status(response.isSuccess() ? 200 : 409).body(response);
+    }
+
     //SEND REPORT ABOUT COMPLETED TASK TO MANAGER OR DIRECTOR
     @PostMapping("/sendReport")
     public HttpEntity<?> sendReport(@RequestParam UUID taskId) {

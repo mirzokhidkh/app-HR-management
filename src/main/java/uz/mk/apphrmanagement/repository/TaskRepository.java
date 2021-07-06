@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, UUID> {
+    boolean existsByUserId(UUID user_id);
     List<Task> findAllByUserId(UUID user_id);
 }

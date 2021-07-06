@@ -16,8 +16,9 @@ public class TaskDto {
     private String description;
     @NotNull
     private Date expireDate;
-//    @NotNull
+
 //    private Integer taskStatusId;
+
     @NotNull
     private UUID userId;
 
