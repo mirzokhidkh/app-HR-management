@@ -2,28 +2,26 @@ package uz.mk.apphrmanagement.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import uz.mk.apphrmanagement.entity.template.AbsUUIDEntity;
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Task {
-    @Id
-    @GeneratedValue
-    private UUID id;
-
+public class Task extends AbsUUIDEntity {
     @Column(nullable = false)
     private String name;
 
@@ -38,18 +36,5 @@ public class Task {
 
     @OneToOne
     private User user;
-
-    @CreatedBy
-    private UUID createdBy;
-
-    @LastModifiedBy
-    private UUID updatedBy;
-
-    @Column(updatable = false, nullable = false)
-    @CreationTimestamp
-    private Timestamp createdAt;
-
-    @UpdateTimestamp
-    private Timestamp updatedAt;
 
 }

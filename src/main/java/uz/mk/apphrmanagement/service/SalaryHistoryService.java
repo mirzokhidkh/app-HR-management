@@ -1,12 +1,8 @@
 package uz.mk.apphrmanagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.SalaryHistory;
-import uz.mk.apphrmanagement.entity.User;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 import uz.mk.apphrmanagement.payload.ApiResponse;
 import uz.mk.apphrmanagement.repository.SalaryHistoryRepository;
@@ -15,7 +11,6 @@ import uz.mk.apphrmanagement.utils.CommonUtils;
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @Service

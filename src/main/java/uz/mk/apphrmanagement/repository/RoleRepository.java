@@ -6,6 +6,6 @@ import uz.mk.apphrmanagement.entity.Role;
 import uz.mk.apphrmanagement.entity.enums.RoleName;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role,Integer> {
+public interface RoleRepository extends JpaRepository<Role, Integer> {
     Role findByRoleName(RoleName roleName);
 }
