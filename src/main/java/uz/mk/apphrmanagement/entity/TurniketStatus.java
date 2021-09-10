@@ -21,4 +21,7 @@ public class TurniketStatus {
     @Enumerated(EnumType.STRING)
     private TurniketStatusName name;
 
+    public TurniketStatus(TurniketStatusName name) {
+        this.name = name;
+    }
 }
